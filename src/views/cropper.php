@@ -12,7 +12,7 @@
 /** @var $template string */
 
 
-use yii\bootstrap\Html;
+use yii\bootstrap4\Html;
 use yii\web\View;
 
 switch ($jsOptions['pos']) {
@@ -34,13 +34,19 @@ switch ($jsOptions['pos']) {
         break;
 }
 
+$viewMode = $cropperOptions['viewMode'];
 
 $cropWidth = $cropperOptions['width'];
 $cropHeight = $cropperOptions['height'];
-$aspectRatio = $cropWidth / $cropHeight;
+$aspectRatio = $cropperOptions['aspectRatio'];
+
+if($aspectRatio !== 0)
+    $aspectRatio = $cropWidth / $cropHeight;
+else $aspectRatio = 'NaN';
+
 $browseLabel = $cropperOptions['icons']['browse'] . ' ' . Yii::t('cropper', 'Browse');
 $cropLabel = $cropperOptions['icons']['crop'] . ' ' . Yii::t('cropper', 'Crop');
-$closeLabel = $cropperOptions['icons']['close'] . ' ' . Yii::t('cropper', 'Crop') . ' & ' . Yii::t('cropper', 'Close');
+$closeLabel = $cropperOptions['icons']['close'] . ' ' . Yii::t('cropper', 'Crop') . ' и ' . Yii::t('cropper', 'Close');
 if ($label !== false) $browseLabel = $cropperOptions['icons']['browse'] . ' ' . $label;
 
 // button template
@@ -70,7 +76,7 @@ if ($cropperOptions['preview'] !== false) {
             'data-buttonid' => 'cropper-select-button-' . $uniqueId,
             'onclick' => 'js: $("#cropper-select-button-'.$uniqueId.'").click()',
         ]) .
-    '</div>';
+        '</div>';
 } else {
     $previewContent = Html::img(null, ['class' => 'hidden', 'id' => 'cropper-image-'.$uniqueId]);
 }
@@ -80,13 +86,13 @@ if ($cropperOptions['preview'] !== false) {
 if (!empty($name)) {
     $input = Html::tag('div', Html::input('text', $name, $value, [
         'id' => $uniqueId.'-input',
-        'class' => 'hidden'
+        'class' => 'd-none'
     ]), ['id' => $uniqueId, 'class' => '',]);
     $inputId = $uniqueId.'-input';
 } else {
     $input = Html::tag('div', Html::activeTextInput($model, $attribute, [
         'value' => $value,
-        'class' => 'hidden',
+        'class' => 'd-none',
     ]), ['id' => $uniqueId, 'class' => '',]);
     $inputId = Html::getInputId($model, $attribute);
 }
@@ -128,7 +134,7 @@ if ($cropperOptions['preview'] !== false) {
         cursor: pointer;     
     }*/
     #cropper-modal-'.$uniqueId.' img{
-        max-width: 100%;
+        max-height: 500px;
     }
     #cropper-modal-'.$uniqueId.' .btn-file {
         position: relative;
@@ -224,8 +230,8 @@ $this->registerJs(<<<JS
     
     var cropper_options_$uniqueId = {
         aspectRatio: $aspectRatio,
-        viewMode: 2,            
-        autoCropArea: 0.98,
+        viewMode: $viewMode,            
+        autoCropArea: 1,
         responsive: false,
         crop: function (e) {
 
